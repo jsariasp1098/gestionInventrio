@@ -18,11 +18,11 @@ public class Venta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name= "id_venta")
-    private Long idventa;
+    private Long idVenta;
     @Column(nullable = false)
     private LocalDate fechaVenta;
     @Column(nullable = false)
-    private double total;
+    private Double total;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private EstadoVenta estado;

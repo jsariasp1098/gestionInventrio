@@ -1,0 +1,31 @@
+
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb
+    restart: no
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345      # contraseña del root
+      MYSQL_DATABASE: inventario              # base de datos inicial
+      MYSQL_USER: user                  # usuario extra
+      MYSQL_PASSWORD: user123           # contraseña de ese usuario
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: no
+    environment:
+      PMA_HOST: mariadb
+    ports:
+      - "8080:80"
+    depends_on:
+      - mariadb
+    
+volumes:
+  mariadb_data:
+
