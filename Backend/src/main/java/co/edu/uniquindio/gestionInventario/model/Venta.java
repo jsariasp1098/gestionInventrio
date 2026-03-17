@@ -1,6 +1,7 @@
 package co.edu.uniquindio.gestionInventario.model;
 
 import co.edu.uniquindio.gestionInventario.model.enums.EstadoVenta;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,5 +34,6 @@ public class Venta {
     @JoinColumn(name = "id_sucursal", nullable = false)
     private Sucursal sucursal;
     @OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<DetalleVenta> detalles;
 }

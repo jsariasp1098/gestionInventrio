@@ -1,6 +1,7 @@
 package co.edu.uniquindio.gestionInventario.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,17 +27,24 @@ public class Sucursal {
     @Column(length = 100)
     private String email;
     @OneToMany(mappedBy = "sucursal", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Usuario> usuarios;
     @OneToMany(mappedBy = "sucursal", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<InventarioSucursal> inventarios;
     @OneToMany(mappedBy = "sucursal", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Venta> ventas;
     @OneToMany(mappedBy = "sucursal", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Compra> compras;
     @OneToMany(mappedBy = "sucursalOrigen", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<SolicitudTraslado> trasladosOrigen;
     @OneToMany(mappedBy = "sucursalDestino", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<SolicitudTraslado> trasladosDestino;
     @OneToMany(mappedBy = "sucursal", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<MovimientoInventario> movimientos;
 }

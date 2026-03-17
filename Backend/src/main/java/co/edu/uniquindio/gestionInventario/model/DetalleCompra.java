@@ -1,5 +1,6 @@
 package co.edu.uniquindio.gestionInventario.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -16,6 +17,7 @@ public class DetalleCompra {
     private Long idDetalleCompra;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_compra", nullable = false)
+    @JsonIgnore
     private Compra compra;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_producto", nullable = false)

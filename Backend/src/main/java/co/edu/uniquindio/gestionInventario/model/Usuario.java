@@ -2,6 +2,7 @@ package co.edu.uniquindio.gestionInventario.model;
 
 
 import co.edu.uniquindio.gestionInventario.model.enums.TipoUsuario;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,9 +34,12 @@ public class Usuario {
     @JoinColumn(name = "id_sucursal", nullable = false)
     private Sucursal sucursal;
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Venta> ventas;
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Compra> compras;
     @OneToMany(mappedBy = "usuarioSolicita", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<SolicitudTraslado> solicitudes;
 }
