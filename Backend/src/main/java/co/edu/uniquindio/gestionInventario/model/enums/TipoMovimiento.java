@@ -1,7 +1,7 @@
 package co.edu.uniquindio.gestionInventario.model.enums;
 
 public enum TipoMovimiento {
-    ENTREDA_COMPRA,
+    ENTRADA_COMPRA,
     SALIDA_VENTA,
     ENTRADA_TRASLADO,
     SALIDA_TRASLADO,

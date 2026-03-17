@@ -67,7 +67,7 @@ public class CompraService {
                     .stockInicial(stockInicial)
                     .stockFinal(stockFinal)
                     .descripcion("Ingreso por compra #" + compra.getIdCompra())
-                    .tipo(TipoMovimiento.ENTREDA_COMPRA)
+                    .tipo(TipoMovimiento.ENTRADA_COMPRA)
                     .build();
 
             movimientoRepository.save(movimiento);
