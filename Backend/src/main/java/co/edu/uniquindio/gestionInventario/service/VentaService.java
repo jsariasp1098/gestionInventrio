@@ -9,7 +9,6 @@ import co.edu.uniquindio.gestionInventario.model.enums.TipoMovimiento;
 import co.edu.uniquindio.gestionInventario.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class VentaService {
 
     private final VentaRepository ventaRepository;
@@ -26,6 +24,20 @@ public class VentaService {
     private final ProductoRepository productoRepository;
     private final UsuarioRepository usuarioRepository;
     private final SucursalRepository sucursalRepository;
+
+    public VentaService(VentaRepository ventaRepository,
+                        InventarioSucursalRepository inventarioRepository,
+                        MovimientoInventarioRepository movimientoRepository,
+                        ProductoRepository productoRepository,
+                        UsuarioRepository usuarioRepository,
+                        SucursalRepository sucursalRepository) {
+        this.ventaRepository = ventaRepository;
+        this.inventarioRepository = inventarioRepository;
+        this.movimientoRepository = movimientoRepository;
+        this.productoRepository = productoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.sucursalRepository = sucursalRepository;
+    }
 
     public List<VentaResponseDTO> listarVentas() {
         return ventaRepository.findAll()

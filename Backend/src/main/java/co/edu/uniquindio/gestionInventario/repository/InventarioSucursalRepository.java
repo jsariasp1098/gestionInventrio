@@ -13,4 +13,6 @@ public interface InventarioSucursalRepository extends JpaRepository<InventarioSu
     );
 
     List<InventarioSucursal> findBySucursalIdSucursal(Long sucursalId);
+
+    List<InventarioSucursal> findByStockActualLessThanEqual(Integer stockMinimo);
 }

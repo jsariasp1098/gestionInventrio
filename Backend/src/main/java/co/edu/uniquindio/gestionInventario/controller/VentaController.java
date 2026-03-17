@@ -2,9 +2,8 @@ package co.edu.uniquindio.gestionInventario.controller;
 
 import co.edu.uniquindio.gestionInventario.dto.VentaRequestDTO;
 import co.edu.uniquindio.gestionInventario.dto.VentaResponseDTO;
-import co.edu.uniquindio.gestionInventario.model.Venta;
 import co.edu.uniquindio.gestionInventario.service.VentaService;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,33 +11,36 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ventas")
-@RequiredArgsConstructor
 public class VentaController {
+
     private final VentaService ventaService;
+
+    public VentaController(VentaService ventaService) {
+        this.ventaService = ventaService;
+    }
 
     // listar todas las ventas
     @GetMapping
-    public List<VentaResponseDTO> listarrVentas() {
+    public List<VentaResponseDTO> listarVentas() {
         return ventaService.listarVentas();
     }
 
     // obtener venta por id
     @GetMapping("/{id}")
     public VentaResponseDTO obtenerVenta(@PathVariable Long id) {
-        Venta venta = ventaService.obtenerVenta(id);
-        return ventaService.convertirAVentaDTO(venta);
+        return ventaService.convertirAVentaDTO(ventaService.obtenerVenta(id));
     }
 
     // crear venta
     @PostMapping
-    public VentaResponseDTO crearVenta(@RequestBody VentaRequestDTO request) {
-        return ventaService.crearVenta(request);
+    public ResponseEntity<VentaResponseDTO> crearVenta(@RequestBody VentaRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(ventaService.crearVenta(request));
     }
 
     // eliminar venta
     @DeleteMapping("/{id}")
-    public void eliminarVenta(@PathVariable Long id) {
+    public ResponseEntity<Void> eliminarVenta(@PathVariable Long id) {
         ventaService.eliminarVenta(id);
+        return ResponseEntity.noContent().build();
     }
-
 }

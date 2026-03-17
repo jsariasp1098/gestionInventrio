@@ -1,14 +1,18 @@
 package co.edu.uniquindio.gestionInventario.service;
 
+import co.edu.uniquindio.gestionInventario.dto.CompraRequestDTO;
+import co.edu.uniquindio.gestionInventario.dto.CompraResponseDTO;
+import co.edu.uniquindio.gestionInventario.dto.DetalleCompraDTO;
 import co.edu.uniquindio.gestionInventario.model.*;
+import co.edu.uniquindio.gestionInventario.model.enums.EstadoCompra;
 import co.edu.uniquindio.gestionInventario.model.enums.TipoMovimiento;
-import co.edu.uniquindio.gestionInventario.repository.CompraRepository;
-import co.edu.uniquindio.gestionInventario.repository.InventarioSucursalRepository;
-import co.edu.uniquindio.gestionInventario.repository.MovimientoInventarioRepository;
+import co.edu.uniquindio.gestionInventario.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,70 +21,121 @@ public class CompraService {
     private final CompraRepository compraRepository;
     private final InventarioSucursalRepository inventarioRepository;
     private final MovimientoInventarioRepository movimientoRepository;
+    private final ProductoRepository productoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final SucursalRepository sucursalRepository;
 
-    public CompraService (CompraRepository compraRepository,
-                          InventarioSucursalRepository inventarioRepository,
-                          MovimientoInventarioRepository movimientoRepository){
+    public CompraService(CompraRepository compraRepository,
+                         InventarioSucursalRepository inventarioRepository,
+                         MovimientoInventarioRepository movimientoRepository,
+                         ProductoRepository productoRepository,
+                         UsuarioRepository usuarioRepository,
+                         SucursalRepository sucursalRepository) {
         this.compraRepository = compraRepository;
         this.inventarioRepository = inventarioRepository;
         this.movimientoRepository = movimientoRepository;
-
-
-    }
-    public List<Compra> listarCompraa() {
-        return compraRepository.findAll();
+        this.productoRepository = productoRepository;
+        this.usuarioRepository = usuarioRepository;
+        this.sucursalRepository = sucursalRepository;
     }
 
-    public Compra obtenerCompra (Long id){
-        return compraRepository.findById(id).
-                orElseThrow(() -> new RuntimeException("Compra no encontrada"));
+    public List<CompraResponseDTO> listarCompras() {
+        return compraRepository.findAll()
+                .stream()
+                .map(this::convertirACompraDTO)
+                .toList();
+    }
+
+    public CompraResponseDTO obtenerCompra(Long id) {
+        Compra compra = compraRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Compra no encontrada"));
+        return convertirACompraDTO(compra);
     }
 
     @Transactional
-    public Compra guardarCompra (Compra compra){
+    public CompraResponseDTO crearCompra(CompraRequestDTO request) {
+
+        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
+                .orElseThrow(() -> new EntityNotFoundException("Usuario no encontrado"));
+
+        Sucursal sucursal = sucursalRepository.findById(request.getIdSucursal())
+                .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada"));
+
+        Compra compra = new Compra();
+        compra.setFechaCompra(LocalDate.now());
+        compra.setEstado(EstadoCompra.RECIBIDA);
+        compra.setUsuario(usuario);
+        compra.setSucursal(sucursal);
+
+        List<DetalleCompra> detalles = new ArrayList<>();
         double total = 0;
 
-        for (DetalleCompra detalle : compra.getDetalles()) {
+        for (DetalleCompraDTO d : request.getDetalles()) {
 
-            // asociar detalle con venta
+            Producto producto = productoRepository.findById(d.getIdProducto())
+                    .orElseThrow(() -> new EntityNotFoundException("Producto no encontrado"));
+
+            // Calcular subtotal
+            double subtotal = d.getPrecioCosto() * d.getCantidad();
+
+            // Crear detalle
+            DetalleCompra detalle = new DetalleCompra();
+            detalle.setProducto(producto);
+            detalle.setCantidad(d.getCantidad());
+            detalle.setPrecioCosto(d.getPrecioCosto());
+            detalle.setSubtotal(subtotal);
             detalle.setCompra(compra);
 
-            // buscar inventario
-            InventarioSucursal inventario =
-                    inventarioRepository.findByProductoIdProductoAndSucursalIdSucursal(
-                            detalle.getProducto().getIdProducto(),
-                            compra.getSucursal().getIdSucursal()
+            detalles.add(detalle);
+
+            // Buscar inventario y aumentar stock
+            InventarioSucursal inventario = inventarioRepository
+                    .findByProductoIdProductoAndSucursalIdSucursal(
+                            producto.getIdProducto(),
+                            sucursal.getIdSucursal()
                     ).orElseThrow(() ->
-                            new RuntimeException("Producto no existe en inventario"));
+                            new EntityNotFoundException("Producto no existe en inventario de esta sucursal"));
 
             int stockInicial = inventario.getStockActual();
-            // aumentar inventario
-            inventario.setStockActual(
-                    inventario.getStockActual() + detalle.getCantidad()
-            );
-            int stockFinal = inventario.getStockActual();
+            inventario.setStockActual(stockInicial + d.getCantidad());
+
+            // Registrar movimiento de inventario
             MovimientoInventario movimiento = MovimientoInventario.builder()
-                    .producto(detalle.getProducto())
-                    .sucursal(compra.getSucursal())
+                    .producto(producto)
+                    .sucursal(sucursal)
                     .fecha(LocalDate.now())
-                    .cantidad(detalle.getCantidad())
+                    .cantidad(d.getCantidad())
                     .stockInicial(stockInicial)
-                    .stockFinal(stockFinal)
-                    .descripcion("Ingreso por compra #" + compra.getIdCompra())
+                    .stockFinal(inventario.getStockActual())
+                    .descripcion("Ingreso por compra")
                     .tipo(TipoMovimiento.ENTRADA_COMPRA)
                     .build();
 
             movimientoRepository.save(movimiento);
-            // sumar total
-            total += detalle.getSubtotal();
+
+            total += subtotal;
         }
 
         compra.setTotal(total);
+        compra.setDetalles(detalles);
 
-        return compraRepository.save(compra);
+        Compra compraGuardada = compraRepository.save(compra);
+
+        return convertirACompraDTO(compraGuardada);
     }
 
     public void eliminarCompra(Long id) {
         compraRepository.deleteById(id);
+    }
+
+    private CompraResponseDTO convertirACompraDTO(Compra compra) {
+        CompraResponseDTO dto = new CompraResponseDTO();
+        dto.setIdCompra(compra.getIdCompra());
+        dto.setFechaCompra(compra.getFechaCompra());
+        dto.setTotal(compra.getTotal());
+        dto.setEstado(compra.getEstado().name());
+        dto.setUsuario(compra.getUsuario().getNombreUsuario());
+        dto.setSucursal(compra.getSucursal().getNombreSucursal());
+        return dto;
     }
 }
