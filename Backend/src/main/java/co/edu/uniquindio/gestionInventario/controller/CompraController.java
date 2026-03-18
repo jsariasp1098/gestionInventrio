@@ -34,7 +34,9 @@ public class CompraController {
     // crear compra
     @PostMapping
     public ResponseEntity<CompraResponseDTO> crearCompra(@RequestBody CompraRequestDTO request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(compraService.crearCompra(request));
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(compraService.crearCompra(request));
     }
 
     // eliminar compra

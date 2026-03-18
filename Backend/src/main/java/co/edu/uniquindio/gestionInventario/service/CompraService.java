@@ -62,10 +62,13 @@ public class CompraService {
                 .orElseThrow(() -> new EntityNotFoundException("Sucursal no encontrada"));
 
         Compra compra = new Compra();
-        compra.setFechaCompra(LocalDate.now());
-        compra.setEstado(EstadoCompra.RECIBIDA);
+        compra.setFecha(LocalDate.now());
+        compra.setEstado(EstadoCompra.PENDIENTE);
         compra.setUsuario(usuario);
         compra.setSucursal(sucursal);
+        compra.setTotal(0.0);
+
+        Compra compraGuardada = compraRepository.save(compra);
 
         List<DetalleCompra> detalles = new ArrayList<>();
         double total = 0;
@@ -107,7 +110,7 @@ public class CompraService {
                     .cantidad(d.getCantidad())
                     .stockInicial(stockInicial)
                     .stockFinal(inventario.getStockActual())
-                    .descripcion("Ingreso por compra")
+                    .descripcion("Ingreso por compra # " +compraGuardada.getIdCompra())
                     .tipo(TipoMovimiento.ENTRADA_COMPRA)
                     .build();
 
@@ -116,10 +119,11 @@ public class CompraService {
             total += subtotal;
         }
 
-        compra.setTotal(total);
-        compra.setDetalles(detalles);
+        compraGuardada.setTotal(total);
+        compraGuardada.setDetalles(detalles);
+        compraGuardada.setEstado(EstadoCompra.RECIBIDA);
 
-        Compra compraGuardada = compraRepository.save(compra);
+        compraRepository.save(compraGuardada);
 
         return convertirACompraDTO(compraGuardada);
     }
@@ -131,7 +135,7 @@ public class CompraService {
     private CompraResponseDTO convertirACompraDTO(Compra compra) {
         CompraResponseDTO dto = new CompraResponseDTO();
         dto.setIdCompra(compra.getIdCompra());
-        dto.setFechaCompra(compra.getFechaCompra());
+        dto.setFechaCompra(compra.getFecha());
         dto.setTotal(compra.getTotal());
         dto.setEstado(compra.getEstado().name());
         dto.setUsuario(compra.getUsuario().getNombreUsuario());

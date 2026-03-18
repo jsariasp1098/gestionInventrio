@@ -32,7 +32,7 @@ INSERT IGNORE INTO productos (id_producto, nombre, descripcion, precio_venta, pr
 (10, 'Sustrato para Germinación', 'Mezcla especial para semilleros', 22000.00, 14000.00);
 
 -- INVENTARIO POR SUCURSAL
-INSERT IGNORE INTO inventario_sucursal (id_inventario, id_producto, id_sucursal, stock_actual, stock_minimo) VALUES
+INSERT IGNORE INTO inventario_sucursal (id_inventario_sucursal, id_producto, id_sucursal, stock_actual, stock_minimo) VALUES
 -- Sucursal Centro
 (1, 1, 1, 50, 10),
 (2, 2, 1, 30, 5),

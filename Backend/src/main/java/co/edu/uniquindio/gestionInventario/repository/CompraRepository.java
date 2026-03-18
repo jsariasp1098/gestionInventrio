@@ -9,9 +9,9 @@ import java.time.LocalDate;
 
 public interface CompraRepository extends JpaRepository<Compra, Long> {
 
-    @Query("SELECT COUNT(c) FROM Compra c WHERE c.fechaCompra BETWEEN :inicio AND :fin")
+    @Query("SELECT COUNT(c) FROM Compra c WHERE c.fecha BETWEEN :inicio AND :fin")
     Long contarComprasPorFecha(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 
-    @Query("SELECT COALESCE(SUM(c.total), 0) FROM Compra c WHERE c.fechaCompra BETWEEN :inicio AND :fin")
+    @Query("SELECT COALESCE(SUM(c.total), 0) FROM Compra c WHERE c.fecha BETWEEN :inicio AND :fin")
     Double sumarTotalComprasPorFecha(@Param("inicio") LocalDate inicio, @Param("fin") LocalDate fin);
 }

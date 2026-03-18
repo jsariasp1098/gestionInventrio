@@ -62,9 +62,12 @@ public class VentaService {
 
         Venta venta = new Venta();
         venta.setFechaVenta(LocalDate.now());
-        venta.setEstado(EstadoVenta.COMPLETADA);
+        venta.setEstado(EstadoVenta.PENDIENTE);
         venta.setUsuario(usuario);
         venta.setSucursal(sucursal);
+        venta.setTotal(0.0);
+
+        Venta ventaGuardada = ventaRepository.save(venta);
 
         List<DetalleVenta> detalles = new ArrayList<>();
         double total = 0;
@@ -105,24 +108,25 @@ public class VentaService {
             inventario.setStockActual(stockInicial - d.getCantidad());
 
             // ✅ Movimiento de inventario
-            MovimientoInventario mov = new MovimientoInventario();
-            mov.setProducto(producto);
-            mov.setSucursal(sucursal);
-            mov.setFecha(LocalDate.now());
-            mov.setCantidad(d.getCantidad());
-            mov.setStockInicial(stockInicial);
-            mov.setStockFinal(inventario.getStockActual());
-            mov.setTipo(TipoMovimiento.SALIDA_VENTA);
+            MovimientoInventario mov = MovimientoInventario.builder().
+                    sucursal(sucursal).
+                    producto(producto).
+                    fecha(LocalDate.now()).
+                    cantidad(d.getCantidad()).
+                    stockInicial(stockInicial).
+                    stockFinal(inventario.getStockActual()).
+                    descripcion("Salida por venta # " + ventaGuardada.getIdVenta()).
+                    tipo(TipoMovimiento.SALIDA_VENTA).
+                    build();
 
             movimientoRepository.save(mov);
 
             total += subtotal;
         }
-
-        venta.setTotal(total);
-        venta.setDetalles(detalles);
-
-        Venta ventaGuardada = ventaRepository.save(venta);
+        ventaGuardada.setTotal(total);
+        ventaGuardada.setDetalles(detalles);
+        ventaGuardada.setEstado(EstadoVenta.COMPLETADA);
+        ventaRepository.save(ventaGuardada);
 
         return convertirAVentaDTO(ventaGuardada);
     }

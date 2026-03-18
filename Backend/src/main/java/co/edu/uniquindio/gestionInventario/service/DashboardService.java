@@ -63,7 +63,7 @@ public class DashboardService {
                 .stream()
                 .map(inv -> {
                     InventarioDTO invDTO = new InventarioDTO();
-                    invDTO.setIdInventario(inv.getIdInventario());
+                    invDTO.setIdInventarioSucursal(inv.getIdInventarioSucursal());
                     invDTO.setSucursal(inv.getSucursal().getNombreSucursal());
                     invDTO.setProducto(inv.getProducto().getNombre());
                     invDTO.setStockActual(inv.getStockActual());
