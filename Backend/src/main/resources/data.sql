@@ -11,12 +11,12 @@ INSERT IGNORE INTO sucursales (id_sucursal, nombre_sucursal, direccion, telefono
 (3, 'Sucursal Sur', 'Carrera 19 #40-15, Armenia', '3105551234', 'sur@optiplant.com');
 
 -- USUARIOS (tipos: VENDEDOR, ADMINISTRADOR, DUEÑO)
-INSERT IGNORE INTO usuarios (id_usuario, nombre_usuario, direccion, telefono, email, tipo, id_sucursal) VALUES
-(1, 'Carlos Admin', 'Calle 15 #8-10', '3001112233', 'carlos@optiplant.com', 'ADMINISTRADOR', 1),
-(2, 'María Vendedora', 'Carrera 20 #12-5', '3004445566', 'maria@optiplant.com', 'VENDEDOR', 1),
-(3, 'Juan Dueño', 'Av. 19 #30-40', '3007778899', 'juan@optiplant.com', 'DUEÑO', 2),
-(4, 'Ana Vendedora', 'Calle 25 #15-8', '3002223344', 'ana@optiplant.com', 'VENDEDOR', 2),
-(5, 'Pedro Vendedor', 'Carrera 10 #5-20', '3006667788', 'pedro@optiplant.com', 'VENDEDOR', 3);
+INSERT IGNORE INTO usuarios (id_usuario, nombre_usuario, direccion, telefono, email, tipo, id_sucursal, password) VALUES
+(1, 'Carlos Admin',    'Calle 15 #8-10',    '3001112233', 'carlos@optiplant.com', 'ADMINISTRADOR', 1, '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LkR3YwejfkG'),
+(2, 'María Vendedora', 'Carrera 20 #12-5',  '3004445566', 'maria@optiplant.com',  'VENDEDOR',       1, '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LkR3YwejfkG'),
+(3, 'Juan Dueño',      'Av. 19 #30-40',     '3007778899', 'juan@optiplant.com',   'DUEÑO',          2, '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LkR3YwejfkG'),
+(4, 'Ana Vendedora',   'Calle 25 #15-8',    '3002223344', 'ana@optiplant.com',    'VENDEDOR',       2, '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LkR3YwejfkG'),
+(5, 'Pedro Vendedor',  'Carrera 10 #5-20',  '3006667788', 'pedro@optiplant.com',  'VENDEDOR',       3, '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LkR3YwejfkG');
 
 -- PRODUCTOS
 INSERT IGNORE INTO productos (id_producto, nombre, descripcion, precio_venta, precio_costo) VALUES
