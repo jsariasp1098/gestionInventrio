@@ -118,7 +118,7 @@ Sistema Gestion de Inventario/
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+git clone https://github.com/jsariasp1098/gestionInventrio.git
 cd "Sistema Gestion de Inventario"
 ```
 
