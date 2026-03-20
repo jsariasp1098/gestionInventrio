@@ -23,7 +23,7 @@ export default function Sidebar() {
   const linkClasses = ({ isActive }) =>
     `block px-4 py-2 rounded transition-colors ${
       isActive
-        ? 'bg-green-600 text-white'
+        ? 'bg-orange-600 text-white'
         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
     }`;
 
@@ -50,7 +50,7 @@ export default function Sidebar() {
         <p className="text-xs text-gray-400">{usuario?.rol}</p>
         <button
           onClick={logout}
-          className="mt-3 w-full text-sm bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors"
+          className="mt-3 w-full text-sm bg-orange-700 text-white py-2 rounded hover:bg-orange-800 transition-colors"
         >
           Cerrar Sesión
         </button>

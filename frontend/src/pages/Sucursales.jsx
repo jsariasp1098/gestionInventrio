@@ -71,7 +71,7 @@ export default function Sucursales() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Sucursales</h1>
-        <button onClick={abrirCrear} className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+        <button onClick={abrirCrear} className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
           + Nueva Sucursal
         </button>
       </div>
@@ -100,7 +100,7 @@ export default function Sucursales() {
                   <td className="px-6 py-4">{s.telefono}</td>
                   <td className="px-6 py-4">{s.email}</td>
                   <td className="px-6 py-4 text-center space-x-3">
-                    <button onClick={() => abrirEditar(s)} className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Editar</button>
+                    <button onClick={() => abrirEditar(s)} className="text-orange-600 hover:text-orange-800 text-sm font-medium">Editar</button>
                     <button onClick={() => eliminar(s.idSucursal)} className="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
                   </td>
                 </tr>
@@ -114,7 +114,7 @@ export default function Sucursales() {
       {mostrarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="bg-indigo-600 text-white p-5 rounded-t-lg">
+            <div className="bg-orange-600 text-white p-5 rounded-t-lg">
               <h2 className="text-xl font-bold">{editando ? 'Editar Sucursal' : 'Nueva Sucursal'}</h2>
             </div>
             <div className="p-6">
@@ -123,26 +123,26 @@ export default function Sucursales() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
                   <input type="text" value={form.nombreSucursal} onChange={(e) => setForm({ ...form, nombreSucursal: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
                   <input type="text" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" required />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                   <input type="text" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div className="flex justify-end space-x-3 border-t pt-4">
                   <button type="button" onClick={() => setMostrarModal(false)} className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Cancelar</button>
-                  <button type="submit" className="px-5 py-2.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium">{editando ? 'Guardar Cambios' : 'Crear Sucursal'}</button>
+                  <button type="submit" className="px-5 py-2.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium">{editando ? 'Guardar Cambios' : 'Crear Sucursal'}</button>
                 </div>
               </form>
             </div>

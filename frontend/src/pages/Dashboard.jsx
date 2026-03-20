@@ -6,7 +6,7 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 
-const COLORES_PIE = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+const COLORES_PIE = ['#ea580c', '#f97316', '#fb923c', '#fdba74', '#fed7aa', '#9a3412'];
 
 export default function Dashboard() {
   const [datos, setDatos] = useState(null);
@@ -18,6 +18,7 @@ export default function Dashboard() {
   const { usuario } = useAuth();
 
   const esDueño = usuario?.rol === 'DUEÑO';
+  const miSucursal = usuario?.nombreSucursal;
 
   useEffect(() => {
     Promise.all([
@@ -45,15 +46,29 @@ export default function Dashboard() {
   const formatearPrecio = (valor) =>
     new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
 
+  // --- Filtrar por sucursal si no es DUEÑO ---
+  const ventasFiltradas = esDueño ? ventas : ventas.filter((v) => v.sucursal === miSucursal);
+  const comprasFiltradas = esDueño ? compras : compras.filter((c) => c.sucursal === miSucursal);
+  const inventarioFiltrado = esDueño ? inventario : inventario.filter((i) => Number(i.idSucursal) === Number(usuario.idSucursal));
+
+  // --- Métricas calculadas desde datos filtrados ---
+  const mesActual = new Date().toISOString().substring(0, 7);
+  const ventasDelMes = ventasFiltradas.filter((v) => String(v.fechaVenta).startsWith(mesActual));
+  const comprasDelMes = comprasFiltradas.filter((c) => String(c.fechaCompra).startsWith(mesActual));
+  const totalVentasMes = ventasDelMes.length;
+  const ingresoVentasMes = ventasDelMes.reduce((sum, v) => sum + (v.total || 0), 0);
+  const totalComprasMes = comprasDelMes.length;
+  const gastoComprasMes = comprasDelMes.reduce((sum, c) => sum + (c.total || 0), 0);
+
   // --- Datos para gráfica de barras: Ventas vs Compras por mes ---
   const construirDatosMensuales = () => {
     const meses = {};
-    ventas.forEach((v) => {
+    ventasFiltradas.forEach((v) => {
       const mes = String(v.fechaVenta).substring(0, 7);
       if (!meses[mes]) meses[mes] = { mes, ventas: 0, compras: 0 };
       meses[mes].ventas += v.total || 0;
     });
-    compras.forEach((c) => {
+    comprasFiltradas.forEach((c) => {
       const mes = String(c.fechaCompra).substring(0, 7);
       if (!meses[mes]) meses[mes] = { mes, ventas: 0, compras: 0 };
       meses[mes].compras += c.total || 0;
@@ -61,7 +76,7 @@ export default function Dashboard() {
     return Object.values(meses).sort((a, b) => a.mes.localeCompare(b.mes)).slice(-6);
   };
 
-  // --- Datos para gráfica de pie: stock por sucursal ---
+  // --- DUEÑO: stock por sucursal (pie) | Otros: stock por producto (barras horizontales) ---
   const construirStockPorSucursal = () => {
     const porSucursal = {};
     inventario.forEach((item) => {
@@ -72,8 +87,16 @@ export default function Dashboard() {
     return Object.entries(porSucursal).map(([name, value]) => ({ name, value }));
   };
 
+  const construirStockPorProducto = () => {
+    return inventarioFiltrado
+      .map((item) => ({ name: item.producto, stock: item.stockActual, minimo: item.stockMinimo }))
+      .sort((a, b) => a.stock - b.stock)
+      .slice(0, 10);
+  };
+
   const datosMensuales = construirDatosMensuales();
-  const stockPorSucursal = construirStockPorSucursal();
+  const stockPorSucursal = esDueño ? construirStockPorSucursal() : [];
+  const stockPorProducto = !esDueño ? construirStockPorProducto() : [];
 
   const productosFiltrados = datos.productosStockBajo
     ? (esDueño ? datos.productosStockBajo : datos.productosStockBajo.filter((item) => Number(item.idSucursal) === Number(usuario.idSucursal)))
@@ -81,18 +104,26 @@ export default function Dashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Dashboard</h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+        {!esDueño && (
+          <p className="text-sm text-orange-600 font-medium mt-1">Sucursal: {miSucursal}</p>
+        )}
+      </div>
 
       {/* Tarjetas de métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <Tarjeta titulo="Ventas del Mes" valor={datos.totalVentasMes} subtitulo={formatearPrecio(datos.ingresoVentasMes || 0)} color="bg-green-500" icono="$" />
-        <Tarjeta titulo="Compras del Mes" valor={datos.totalComprasMes} subtitulo={formatearPrecio(datos.gastoComprasMes || 0)} color="bg-blue-500" icono="C" />
-        <Tarjeta titulo="Total Productos" valor={datos.totalProductos} subtitulo="Registrados" color="bg-purple-500" icono="P" />
-        <Tarjeta titulo="Sucursales" valor={datos.totalSucursales} subtitulo="Activas" color="bg-orange-500" icono="S" />
+        <Tarjeta titulo="Ventas del Mes" valor={totalVentasMes} subtitulo={formatearPrecio(ingresoVentasMes)} color="bg-orange-500" icono="$" />
+        <Tarjeta titulo="Compras del Mes" valor={totalComprasMes} subtitulo={formatearPrecio(gastoComprasMes)} color="bg-orange-600" icono="C" />
+        <Tarjeta titulo={esDueño ? 'Total Productos' : 'Productos en Sucursal'} valor={esDueño ? datos.totalProductos : inventarioFiltrado.length} subtitulo={esDueño ? 'Registrados' : 'En inventario'} color="bg-orange-700" icono="P" />
+        {esDueño
+          ? <Tarjeta titulo="Sucursales" valor={datos.totalSucursales} subtitulo="Activas" color="bg-orange-800" icono="S" />
+          : <Tarjeta titulo="Total Stock" valor={inventarioFiltrado.reduce((s, i) => s + (i.stockActual || 0), 0)} subtitulo="Unidades en sucursal" color="bg-orange-800" icono="S" />
+        }
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <Tarjeta titulo="Traslados Pendientes" valor={datos.trasladosPendientes} subtitulo="Por procesar" color="bg-yellow-500" icono="T" />
+        <Tarjeta titulo="Traslados Pendientes" valor={datos.trasladosPendientes} subtitulo="Por procesar" color="bg-amber-500" icono="T" />
         <Tarjeta titulo="Stock Bajo" valor={productosFiltrados.length} subtitulo="Requieren atención" color="bg-red-500" icono="!" />
       </div>
 
@@ -100,7 +131,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {/* Gráfica de barras: Ventas vs Compras */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Ventas vs Compras (mensual)</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4">
+            Ventas vs Compras (mensual){!esDueño && <span className="text-sm text-gray-400 font-normal ml-2">— {miSucursal}</span>}
+          </h2>
           {datosMensuales.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={datosMensuales}>
@@ -109,8 +142,8 @@ export default function Dashboard() {
                 <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`} />
                 <Tooltip formatter={(value) => formatearPrecio(value)} />
                 <Legend />
-                <Bar dataKey="ventas" fill="#10b981" name="Ventas" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="compras" fill="#3b82f6" name="Compras" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="ventas" fill="#ea580c" name="Ventas" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="compras" fill="#fdba74" name="Compras" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
@@ -118,30 +151,55 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Gráfica de pie: Stock por sucursal */}
+        {/* DUEÑO: Pie stock por sucursal | Otros: Barras stock por producto */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Distribución de Stock por Sucursal</h2>
-          {stockPorSucursal.length > 0 ? (
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={stockPorSucursal}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={true}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={100}
-                  dataKey="value"
-                >
-                  {stockPorSucursal.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORES_PIE[index % COLORES_PIE.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value) => `${value} unidades`} />
-              </PieChart>
-            </ResponsiveContainer>
+          {esDueño ? (
+            <>
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">Distribución de Stock por Sucursal</h2>
+              {stockPorSucursal.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={stockPorSucursal}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={true}
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={100}
+                      dataKey="value"
+                    >
+                      {stockPorSucursal.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORES_PIE[index % COLORES_PIE.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value) => `${value} unidades`} />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-400 text-center py-12">Sin datos de inventario</p>
+              )}
+            </>
           ) : (
-            <p className="text-gray-400 text-center py-12">Sin datos de inventario</p>
+            <>
+              <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                Stock por Producto <span className="text-sm text-gray-400 font-normal">— {miSucursal}</span>
+              </h2>
+              {stockPorProducto.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={stockPorProducto} layout="vertical" margin={{ left: 20 }}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" tick={{ fontSize: 12 }} />
+                    <YAxis type="category" dataKey="name" tick={{ fontSize: 11 }} width={100} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="stock" fill="#ea580c" name="Stock Actual" radius={[0, 4, 4, 0]} />
+                    <Bar dataKey="minimo" fill="#fed7aa" name="Stock Mínimo" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-gray-400 text-center py-12">Sin datos de inventario</p>
+              )}
+            </>
           )}
         </div>
       </div>

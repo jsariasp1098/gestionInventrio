@@ -179,7 +179,7 @@ export default function Traslados() {
           <h1 className="text-2xl font-bold text-gray-800">Traslados entre Sucursales</h1>
           <p className="text-gray-500 text-sm mt-1">Solicita productos de otras sucursales y gestiona envíos</p>
         </div>
-        <button onClick={abrirCrear} className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors">
+        <button onClick={abrirCrear} className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
           + Solicitar Producto
         </button>
       </div>
@@ -273,9 +273,9 @@ export default function Traslados() {
       {modalCrear && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-lg">
-            <div className="bg-purple-600 text-white p-5 rounded-t-lg">
+            <div className="bg-orange-600 text-white p-5 rounded-t-lg">
               <h2 className="text-xl font-bold">Solicitar Producto a otra Sucursal</h2>
-              <p className="text-purple-100 text-sm mt-1">Selecciona el producto, mira qué sucursales lo tienen y pide la cantidad que necesitas</p>
+              <p className="text-orange-100 text-sm mt-1">Selecciona el producto, mira qué sucursales lo tienen y pide la cantidad que necesitas</p>
             </div>
             <div className="p-6">
               {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>}
@@ -301,7 +301,7 @@ export default function Traslados() {
                   <select
                     value={formProducto}
                     onChange={(e) => { setFormProducto(e.target.value); setFormSucursalOrigen(''); setFormCantidad(1); }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                     <option value="">Seleccionar producto...</option>
                     {productos.map((p) => (
                       <option key={p.idProducto} value={p.idProducto}>{p.nombre}</option>
@@ -326,7 +326,7 @@ export default function Traslados() {
                             key={s.idSucursal}
                             className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors ${
                               formSucursalOrigen === String(s.idSucursal)
-                                ? 'border-purple-500 bg-purple-50'
+                                ? 'border-orange-500 bg-orange-50'
                                 : 'border-gray-200 hover:bg-gray-50'
                             }`}
                           >
@@ -337,7 +337,7 @@ export default function Traslados() {
                                 value={s.idSucursal}
                                 checked={formSucursalOrigen === String(s.idSucursal)}
                                 onChange={(e) => { setFormSucursalOrigen(e.target.value); setFormCantidad(1); }}
-                                className="text-purple-600 focus:ring-purple-500"
+                                className="text-orange-600 focus:ring-orange-500"
                               />
                               <span className="font-medium text-gray-800">{s.sucursal}</span>
                             </div>
@@ -363,7 +363,7 @@ export default function Traslados() {
                       min="1"
                       max={stockMaximo}
                       onChange={(e) => setFormCantidad(Number(e.target.value))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     />
                   </div>
                 )}
@@ -375,7 +375,7 @@ export default function Traslados() {
                   <button
                     type="submit"
                     disabled={!formProducto || !formSucursalOrigen || formCantidad < 1}
-                    className="px-5 py-2.5 bg-purple-600 text-white rounded-md hover:bg-purple-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-5 py-2.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Enviar Solicitud
                   </button>
@@ -390,9 +390,9 @@ export default function Traslados() {
       {modalEnviar && trasladoActivo && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="bg-blue-600 text-white p-5 rounded-t-lg">
+            <div className="bg-orange-600 text-white p-5 rounded-t-lg">
               <h2 className="text-xl font-bold">Enviar Producto — Solicitud #{trasladoActivo.idSolicitud}</h2>
-              <p className="text-blue-100 text-sm mt-1">Al enviar, se descontará del inventario de tu sucursal y quedará en tránsito</p>
+              <p className="text-orange-100 text-sm mt-1">Al enviar, se descontará del inventario de tu sucursal y quedará en tránsito</p>
             </div>
             <div className="p-6">
               {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>}
@@ -401,7 +401,7 @@ export default function Traslados() {
                 <p><span className="font-medium text-gray-600">Producto:</span> {trasladoActivo.nombreProducto}</p>
                 <p><span className="font-medium text-gray-600">Tu sucursal (remitente):</span> {trasladoActivo.nombreSucursalOrigen}</p>
                 <p><span className="font-medium text-gray-600">Solicita:</span> {trasladoActivo.nombreSucursalDestino}</p>
-                <p><span className="font-medium text-gray-600">Cantidad solicitada:</span> <span className="font-bold text-purple-700">{trasladoActivo.cantidadSolicitada}</span></p>
+                <p><span className="font-medium text-gray-600">Cantidad solicitada:</span> <span className="font-bold text-orange-700">{trasladoActivo.cantidadSolicitada}</span></p>
                 <p><span className="font-medium text-gray-600">Solicitado por:</span> {trasladoActivo.nombreUsuarioSolicita}</p>
               </div>
 
@@ -414,11 +414,11 @@ export default function Traslados() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad a enviar</label>
                   <input type="number" value={cantidadEnviada} min="1"
                     onChange={(e) => setCantidadEnviada(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div className="flex justify-end space-x-3 border-t pt-4">
                   <button type="button" onClick={() => setModalEnviar(false)} className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Cancelar</button>
-                  <button type="submit" className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">Confirmar Envío</button>
+                  <button type="submit" className="px-5 py-2.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium">Confirmar Envío</button>
                 </div>
               </form>
             </div>
@@ -430,9 +430,9 @@ export default function Traslados() {
       {modalConfirmar && trasladoActivo && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md">
-            <div className="bg-green-600 text-white p-5 rounded-t-lg">
+            <div className="bg-orange-600 text-white p-5 rounded-t-lg">
               <h2 className="text-xl font-bold">Confirmar Recepción — #{trasladoActivo.idSolicitud}</h2>
-              <p className="text-green-100 text-sm mt-1">Verifica la mercancía recibida. Al confirmar se sumará a tu inventario.</p>
+              <p className="text-orange-100 text-sm mt-1">Verifica la mercancía recibida. Al confirmar se sumará a tu inventario.</p>
             </div>
             <div className="p-6">
               {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>}
@@ -441,7 +441,7 @@ export default function Traslados() {
                 <p><span className="font-medium text-gray-600">Producto:</span> {trasladoActivo.nombreProducto}</p>
                 <p><span className="font-medium text-gray-600">Enviado por:</span> {trasladoActivo.nombreSucursalOrigen}</p>
                 <p><span className="font-medium text-gray-600">Tu sucursal:</span> {trasladoActivo.nombreSucursalDestino}</p>
-                <p><span className="font-medium text-gray-600">Cantidad enviada:</span> <span className="font-bold text-blue-700">{trasladoActivo.cantidadEnviada}</span></p>
+                <p><span className="font-medium text-gray-600">Cantidad enviada:</span> <span className="font-bold text-orange-700">{trasladoActivo.cantidadEnviada}</span></p>
               </div>
 
               <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-4 text-sm">
@@ -453,18 +453,18 @@ export default function Traslados() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad recibida</label>
                   <input type="number" value={cantidadRecibida} min="0" max={trasladoActivo.cantidadEnviada}
                     onChange={(e) => setCantidadRecibida(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones (opcional)</label>
                   <textarea value={observacionesRecepcion}
                     onChange={(e) => setObservacionesRecepcion(e.target.value)}
                     rows="2" placeholder="Producto en buen estado, faltaron 2 unidades, etc."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div className="flex justify-end space-x-3 border-t pt-4">
                   <button type="button" onClick={() => setModalConfirmar(false)} className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Cancelar</button>
-                  <button type="submit" className="px-5 py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">Confirmar Recepción</button>
+                  <button type="submit" className="px-5 py-2.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium">Confirmar Recepción</button>
                 </div>
               </form>
             </div>

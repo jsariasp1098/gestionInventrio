@@ -82,7 +82,7 @@ export default function Inventario() {
           <select
             value={sucursalSeleccionada}
             onChange={(e) => cambiarSucursal(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             {sucursales.map((s) => (
               <option key={s.idSucursal} value={s.idSucursal}>{s.nombreSucursal}</option>
@@ -115,7 +115,7 @@ export default function Inventario() {
                   <tr key={item.idInventarioSucursal} className="border-b hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium text-gray-800">{item.producto}</td>
                     <td className="px-6 py-4 text-right text-gray-500">{formatearPrecio(item.precioCosto)}</td>
-                    <td className="px-6 py-4 text-right font-medium text-green-700">{formatearPrecio(item.precioVenta)}</td>
+                    <td className="px-6 py-4 text-right font-medium text-orange-700">{formatearPrecio(item.precioVenta)}</td>
                     <td className="px-6 py-4 text-center font-bold">{item.stockActual}</td>
                     <td className="px-6 py-4 text-center text-gray-500">{item.stockMinimo}</td>
                     <td className="px-6 py-4 text-center">
@@ -159,7 +159,7 @@ export default function Inventario() {
                   onChange={(e) => setNuevoStock(e.target.value)}
                   required
                   min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
@@ -173,7 +173,7 @@ export default function Inventario() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
                 >
                   Guardar
                 </button>

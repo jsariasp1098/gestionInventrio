@@ -104,7 +104,7 @@ export default function Usuarios() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Usuarios</h1>
-        <button onClick={abrirCrear} className="bg-teal-600 text-white px-4 py-2 rounded-md hover:bg-teal-700 transition-colors">
+        <button onClick={abrirCrear} className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
           + Nuevo Usuario
         </button>
       </div>
@@ -137,7 +137,7 @@ export default function Usuarios() {
                   </td>
                   <td className="px-6 py-4">{u.nombreSucursal}</td>
                   <td className="px-6 py-4 text-center space-x-3">
-                    <button onClick={() => abrirEditar(u)} className="text-teal-600 hover:text-teal-800 text-sm font-medium">Editar</button>
+                    <button onClick={() => abrirEditar(u)} className="text-orange-600 hover:text-orange-800 text-sm font-medium">Editar</button>
                     <button onClick={() => eliminar(u.idUsuario)} className="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
                   </td>
                 </tr>
@@ -151,7 +151,7 @@ export default function Usuarios() {
       {mostrarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="bg-teal-600 text-white p-5 rounded-t-lg">
+            <div className="bg-orange-600 text-white p-5 rounded-t-lg">
               <h2 className="text-xl font-bold">{editando ? 'Editar Usuario' : 'Nuevo Usuario'}</h2>
             </div>
             <div className="p-6">
@@ -160,36 +160,36 @@ export default function Usuarios() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
                   <input type="text" value={form.nombreUsuario} onChange={(e) => setForm({ ...form, nombreUsuario: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Contraseña {editando && <span className="text-gray-400 font-normal">(dejar vacío para no cambiar)</span>}
                   </label>
                   <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                     required={!editando} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
                   <input type="text" value={form.direccion} onChange={(e) => setForm({ ...form, direccion: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                   <input type="text" value={form.telefono} onChange={(e) => setForm({ ...form, telefono: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" />
                 </div>
                 <div className={esDueño ? 'grid grid-cols-2 gap-4' : ''}>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
                     <select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500">
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500">
                       {ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
                     </select>
                   </div>
@@ -197,7 +197,7 @@ export default function Usuarios() {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Sucursal</label>
                       <select value={form.idSucursal} onChange={(e) => setForm({ ...form, idSucursal: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500" required>
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500" required>
                         <option value="">Seleccionar...</option>
                         {sucursales.map((s) => (
                           <option key={s.idSucursal} value={s.idSucursal}>{s.nombreSucursal}</option>
@@ -208,7 +208,7 @@ export default function Usuarios() {
                 </div>
                 <div className="flex justify-end space-x-3 border-t pt-4">
                   <button type="button" onClick={() => setMostrarModal(false)} className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">Cancelar</button>
-                  <button type="submit" className="px-5 py-2.5 bg-teal-600 text-white rounded-md hover:bg-teal-700 font-medium">{editando ? 'Guardar Cambios' : 'Crear Usuario'}</button>
+                  <button type="submit" className="px-5 py-2.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium">{editando ? 'Guardar Cambios' : 'Crear Usuario'}</button>
                 </div>
               </form>
             </div>

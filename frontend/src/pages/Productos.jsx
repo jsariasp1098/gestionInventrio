@@ -89,7 +89,7 @@ export default function Productos() {
       {/* Encabezado */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Productos</h1>
-        <button onClick={abrirCrear} className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
+        <button onClick={abrirCrear} className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
           + Nuevo Producto
         </button>
       </div>
@@ -115,7 +115,7 @@ export default function Productos() {
                   <td className="px-6 py-4 font-medium text-gray-800">{p.nombre}</td>
                   <td className="px-6 py-4 text-gray-500 text-sm">{p.descripcion}</td>
                   <td className="px-6 py-4 text-right">{formatearPrecio(p.precioCosto)}</td>
-                  <td className="px-6 py-4 text-right font-medium text-green-700">{formatearPrecio(p.precioVenta)}</td>
+                  <td className="px-6 py-4 text-right font-medium text-orange-700">{formatearPrecio(p.precioVenta)}</td>
                   <td className="px-6 py-4 text-center space-x-2">
                     <button onClick={() => abrirEditar(p)} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                       Editar
@@ -151,7 +151,7 @@ export default function Productos() {
                   value={form.nombre}
                   onChange={(e) => setForm({ ...form, nombre: e.target.value })}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
@@ -161,7 +161,7 @@ export default function Productos() {
                   value={form.descripcion}
                   onChange={(e) => setForm({ ...form, descripcion: e.target.value })}
                   rows="2"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
 
@@ -174,7 +174,7 @@ export default function Productos() {
                     onChange={(e) => setForm({ ...form, precioCosto: e.target.value })}
                     required
                     min="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
                 <div>
@@ -185,7 +185,7 @@ export default function Productos() {
                     onChange={(e) => setForm({ ...form, precioVenta: e.target.value })}
                     required
                     min="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function Productos() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
                 >
                   {productoEditar ? 'Guardar Cambios' : 'Crear Producto'}
                 </button>

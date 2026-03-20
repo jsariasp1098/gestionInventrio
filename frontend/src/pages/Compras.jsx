@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Compras() {
   const { usuario } = useAuth();
+  const esDueño = usuario?.rol === 'DUEÑO';
   const [compras, setCompras] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -102,7 +103,7 @@ export default function Compras() {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Compras</h1>
-        <button onClick={abrirCrear} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+        <button onClick={abrirCrear} className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors">
           + Nueva Compra
         </button>
       </div>
@@ -121,25 +122,28 @@ export default function Compras() {
             </tr>
           </thead>
           <tbody>
-            {compras.length === 0 ? (
+            {(() => {
+              const comprasFiltradas = esDueño ? compras : compras.filter((c) => c.sucursal === usuario.nombreSucursal);
+              return comprasFiltradas.length === 0 ? (
               <tr><td colSpan="7" className="px-6 py-8 text-center text-gray-400">No hay compras registradas</td></tr>
             ) : (
-              compras.map((c) => (
+              comprasFiltradas.map((c) => (
                 <tr key={c.idCompra} className="border-b hover:bg-gray-50">
                   <td className="px-6 py-4 text-gray-500">#{c.idCompra}</td>
                   <td className="px-6 py-4">{c.fechaCompra}</td>
                   <td className="px-6 py-4">{c.usuario}</td>
                   <td className="px-6 py-4">{c.sucursal}</td>
-                  <td className="px-6 py-4 text-right font-medium text-blue-700">{formatearPrecio(c.total)}</td>
+                  <td className="px-6 py-4 text-right font-medium text-orange-700">{formatearPrecio(c.total)}</td>
                   <td className="px-6 py-4 text-center">
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">{c.estado}</span>
+                    <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-medium">{c.estado}</span>
                   </td>
                   <td className="px-6 py-4 text-center">
                     <button onClick={() => eliminar(c.idCompra)} className="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
                   </td>
                 </tr>
               ))
-            )}
+            ); })()
+            }
           </tbody>
         </table>
       </div>
@@ -148,9 +152,9 @@ export default function Compras() {
       {mostrarModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="bg-blue-600 text-white p-5 rounded-t-lg">
+            <div className="bg-orange-600 text-white p-5 rounded-t-lg">
               <h2 className="text-xl font-bold">Nueva Compra</h2>
-              <p className="text-blue-100 text-sm mt-1">Registrar compra de productos a proveedor</p>
+              <p className="text-orange-100 text-sm mt-1">Registrar compra de productos a proveedor</p>
             </div>
 
             <div className="p-6">
@@ -196,7 +200,7 @@ export default function Compras() {
                                 <select
                                   value={det.idProducto}
                                   onChange={(e) => actualizarDetalle(index, 'idProducto', e.target.value)}
-                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 >
                                   <option value="">Seleccionar...</option>
                                   {productos.map((p) => (
@@ -208,14 +212,14 @@ export default function Compras() {
                                 <input
                                   type="number" value={det.cantidad} min="1"
                                   onChange={(e) => actualizarDetalle(index, 'cantidad', e.target.value)}
-                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 />
                               </td>
                               <td className="px-3 py-2">
                                 <input
                                   type="number" value={det.precioCosto} min="0"
                                   onChange={(e) => actualizarDetalle(index, 'precioCosto', e.target.value)}
-                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-right text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-right text-sm focus:outline-none focus:ring-1 focus:ring-orange-500"
                                 />
                               </td>
                               <td className="px-3 py-2 text-right font-medium">
@@ -230,15 +234,15 @@ export default function Compras() {
                       </tbody>
                     </table>
                   </div>
-                  <button type="button" onClick={agregarDetalle} className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                  <button type="button" onClick={agregarDetalle} className="mt-2 text-sm text-orange-600 hover:text-orange-800 font-medium">
                     + Agregar producto
                   </button>
                 </div>
 
                 <div className="flex justify-end mb-6">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg px-6 py-3 text-right">
-                    <p className="text-xs text-blue-600 uppercase font-medium">Total de la compra</p>
-                    <p className="text-2xl font-bold text-blue-700">{formatearPrecio(calcularTotal())}</p>
+                  <div className="bg-orange-50 border border-orange-200 rounded-lg px-6 py-3 text-right">
+                    <p className="text-xs text-orange-600 uppercase font-medium">Total de la compra</p>
+                    <p className="text-2xl font-bold text-orange-700">{formatearPrecio(calcularTotal())}</p>
                   </div>
                 </div>
 
@@ -248,7 +252,7 @@ export default function Compras() {
                     Cancelar
                   </button>
                   <button type="submit"
-                    className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">
+                    className="px-5 py-2.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 font-medium">
                     Registrar Compra
                   </button>
                 </div>
