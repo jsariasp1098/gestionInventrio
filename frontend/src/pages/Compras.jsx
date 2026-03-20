@@ -8,7 +8,7 @@ export default function Compras() {
   const [cargando, setCargando] = useState(true);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [productos, setProductos] = useState([]);
-  const [detalles, setDetalles] = useState([{ idProducto: '', cantidad: 1, precioCosto: '' }]);
+  const [detalles, setDetalles] = useState([]);
   const [error, setError] = useState('');
 
   const cargarCompras = () => {
@@ -22,14 +22,14 @@ export default function Compras() {
   useEffect(() => { cargarCompras(); }, []);
 
   const abrirCrear = () => {
-    setDetalles([{ idProducto: '', cantidad: 1, precioCosto: '' }]);
+    setDetalles([{ idProducto: '', cantidad: 1, precioCosto: 0, nombre: '' }]);
     setError('');
     api.get('/productos').then((res) => setProductos(res.data));
     setMostrarModal(true);
   };
 
   const agregarDetalle = () => {
-    setDetalles([...detalles, { idProducto: '', cantidad: 1, precioCosto: '' }]);
+    setDetalles([...detalles, { idProducto: '', cantidad: 1, precioCosto: 0, nombre: '' }]);
   };
 
   const eliminarDetalle = (index) => {
@@ -41,28 +41,32 @@ export default function Compras() {
     const nuevos = detalles.map((d, i) => {
       if (i !== index) return d;
       const copia = { ...d, [campo]: (campo === 'cantidad' || campo === 'precioCosto') ? Number(valor) : valor };
-      // Auto-rellenar precio costo al seleccionar producto
       if (campo === 'idProducto' && valor) {
         const prod = productos.find((p) => String(p.idProducto) === String(valor));
-        if (prod) copia.precioCosto = prod.precioCosto;
+        if (prod) {
+          copia.precioCosto = prod.precioCosto;
+          copia.nombre = prod.nombre;
+        }
       }
       return copia;
     });
     setDetalles(nuevos);
   };
 
+  const calcularTotal = () => {
+    return detalles.reduce((sum, d) => sum + (d.precioCosto * d.cantidad), 0);
+  };
+
   const guardar = async (e) => {
     e.preventDefault();
     setError('');
-
     if (detalles.some((d) => !d.idProducto || !d.precioCosto)) {
-      setError('Completa todos los campos en cada línea');
+      setError('Completa todos los campos en cada linea');
       return;
     }
-
     try {
       await api.post('/compras', {
-        idUsuario: usuario.idSucursal,
+        idUsuario: usuario.idUsuario,
         idSucursal: usuario.idSucursal,
         detalles: detalles.map((d) => ({
           idProducto: Number(d.idProducto),
@@ -73,7 +77,7 @@ export default function Compras() {
       setMostrarModal(false);
       cargarCompras();
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al registrar compra');
+      setError(err.response?.data?.mensaje || err.response?.data?.message || 'Error al registrar compra');
     }
   };
 
@@ -87,9 +91,10 @@ export default function Compras() {
     }
   };
 
-  const formatearPrecio = (valor) => {
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
-  };
+  const formatearPrecio = (valor) =>
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
+
+  const hoy = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
 
   if (cargando) return <p className="text-gray-500">Cargando compras...</p>;
 
@@ -127,14 +132,10 @@ export default function Compras() {
                   <td className="px-6 py-4">{c.sucursal}</td>
                   <td className="px-6 py-4 text-right font-medium text-blue-700">{formatearPrecio(c.total)}</td>
                   <td className="px-6 py-4 text-center">
-                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">
-                      {c.estado}
-                    </span>
+                    <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm font-medium">{c.estado}</span>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button onClick={() => eliminar(c.idCompra)} className="text-red-600 hover:text-red-800 text-sm font-medium">
-                      Eliminar
-                    </button>
+                    <button onClick={() => eliminar(c.idCompra)} className="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
                   </td>
                 </tr>
               ))
@@ -143,81 +144,116 @@ export default function Compras() {
         </table>
       </div>
 
-      {/* Modal nueva compra */}
+      {/* Modal nueva compra - formulario completo */}
       {mostrarModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Nueva Compra</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-blue-600 text-white p-5 rounded-t-lg">
+              <h2 className="text-xl font-bold">Nueva Compra</h2>
+              <p className="text-blue-100 text-sm mt-1">Registrar compra de productos a proveedor</p>
+            </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded mb-4 text-sm">{error}</div>
-            )}
+            <div className="p-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>
+              )}
 
-            <form onSubmit={guardar} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Productos</label>
-                {detalles.map((det, index) => (
-                  <div key={index} className="flex gap-2 mb-2">
-                    <select
-                      value={det.idProducto}
-                      onChange={(e) => actualizarDetalle(index, 'idProducto', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Seleccionar producto</option>
-                      {productos.map((p) => (
-                        <option key={p.idProducto} value={p.idProducto}>{p.nombre}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="number"
-                      value={det.cantidad}
-                      onChange={(e) => actualizarDetalle(index, 'cantidad', e.target.value)}
-                      min="1"
-                      placeholder="Cant."
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <input
-                      type="number"
-                      value={det.precioCosto}
-                      onChange={(e) => actualizarDetalle(index, 'precioCosto', e.target.value)}
-                      min="0"
-                      placeholder="Costo"
-                      className="w-28 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => eliminarDetalle(index)}
-                      className="px-3 py-2 text-red-600 hover:text-red-800"
-                    >
-                      X
-                    </button>
+              <div className="grid grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Responsable</p>
+                  <p className="text-sm font-semibold text-gray-800">{usuario.nombre}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Sucursal destino</p>
+                  <p className="text-sm font-semibold text-gray-800">{usuario.nombreSucursal}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Fecha</p>
+                  <p className="text-sm font-semibold text-gray-800">{hoy}</p>
+                </div>
+              </div>
+
+              <form onSubmit={guardar}>
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Detalle de productos</label>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-50 text-gray-600 text-xs uppercase">
+                          <th className="px-3 py-2 text-left">Producto</th>
+                          <th className="px-3 py-2 text-center w-20">Cant.</th>
+                          <th className="px-3 py-2 text-right">P. Costo</th>
+                          <th className="px-3 py-2 text-right">Subtotal</th>
+                          <th className="px-3 py-2 w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detalles.map((det, index) => {
+                          const subtotal = det.precioCosto * det.cantidad;
+                          return (
+                            <tr key={index} className="border-t">
+                              <td className="px-3 py-2">
+                                <select
+                                  value={det.idProducto}
+                                  onChange={(e) => actualizarDetalle(index, 'idProducto', e.target.value)}
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                >
+                                  <option value="">Seleccionar...</option>
+                                  {productos.map((p) => (
+                                    <option key={p.idProducto} value={p.idProducto}>{p.nombre}</option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="number" value={det.cantidad} min="1"
+                                  onChange={(e) => actualizarDetalle(index, 'cantidad', e.target.value)}
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                              </td>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="number" value={det.precioCosto} min="0"
+                                  onChange={(e) => actualizarDetalle(index, 'precioCosto', e.target.value)}
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-right text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                              </td>
+                              <td className="px-3 py-2 text-right font-medium">
+                                {subtotal > 0 ? formatearPrecio(subtotal) : '-'}
+                              </td>
+                              <td className="px-3 py-2 text-center">
+                                <button type="button" onClick={() => eliminarDetalle(index)} className="text-red-500 hover:text-red-700 font-bold">✕</button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={agregarDetalle}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-                >
-                  + Agregar producto
-                </button>
-              </div>
+                  <button type="button" onClick={agregarDetalle} className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                    + Agregar producto
+                  </button>
+                </div>
 
-              <div className="flex justify-end space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setMostrarModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                  Registrar Compra
-                </button>
-              </div>
-            </form>
+                <div className="flex justify-end mb-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg px-6 py-3 text-right">
+                    <p className="text-xs text-blue-600 uppercase font-medium">Total de la compra</p>
+                    <p className="text-2xl font-bold text-blue-700">{formatearPrecio(calcularTotal())}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 border-t pt-4">
+                  <button type="button" onClick={() => setMostrarModal(false)}
+                    className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+                    Cancelar
+                  </button>
+                  <button type="submit"
+                    className="px-5 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">
+                    Registrar Compra
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

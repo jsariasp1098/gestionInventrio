@@ -7,8 +7,8 @@
 -- SUCURSALES
 INSERT IGNORE INTO sucursales (id_sucursal, nombre_sucursal, direccion, telefono, email) VALUES
 (1, 'Sucursal Centro', 'Calle 10 #5-20, Armenia', '3101234567', 'centro@optiplant.com'),
-(2, 'Sucursal Norte', 'Av. Bolívar #25-30, Armenia', '3109876543', 'norte@optiplant.com'),
-(3, 'Sucursal Sur', 'Carrera 19 #40-15, Armenia', '3105551234', 'sur@optiplant.com');
+(2, 'Sucursal Sur', 'Carrera 19 #40-15, Armenia', '3105551234', 'sur@optiplant.com'),
+(3, 'Sucursal Norte', 'Av. Bolívar #25-30, Armenia', '3109876543', 'norte@optiplant.com');
 
 -- USUARIOS (tipos: VENDEDOR, ADMINISTRADOR, DUEÑO)
 INSERT IGNORE INTO usuarios (id_usuario, nombre_usuario, direccion, telefono, email, tipo, id_sucursal, password) VALUES

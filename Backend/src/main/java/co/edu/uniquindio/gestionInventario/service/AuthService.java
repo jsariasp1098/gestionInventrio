@@ -44,10 +44,12 @@ public class AuthService {
 
         return new LoginResponseDTO(
                 token,
+                usuario.getIdUsuario(),
                 usuario.getNombreUsuario(),
                 usuario.getEmail(),
                 usuario.getTipo().name(),
-                usuario.getSucursal().getIdSucursal()
+                usuario.getSucursal().getIdSucursal(),
+                usuario.getSucursal().getNombreSucursal()
         );
     }
 }

@@ -7,12 +7,12 @@ export default function Sidebar() {
   // Definir las opciones del menú con los roles que pueden verlas
   const menuItems = [
     { nombre: 'Dashboard',  ruta: '/',           roles: ['ADMINISTRADOR', 'VENDEDOR', 'DUEÑO'] },
-    { nombre: 'Productos',  ruta: '/productos',  roles: ['ADMINISTRADOR', 'VENDEDOR', 'DUEÑO'] },
+    { nombre: 'Productos',  ruta: '/productos',  roles: ['ADMINISTRADOR', 'DUEÑO'] },
     { nombre: 'Inventario', ruta: '/inventario',  roles: ['ADMINISTRADOR', 'VENDEDOR', 'DUEÑO'] },
     { nombre: 'Ventas',     ruta: '/ventas',      roles: ['ADMINISTRADOR', 'VENDEDOR', 'DUEÑO'] },
-    { nombre: 'Compras',    ruta: '/compras',     roles: ['ADMINISTRADOR', 'VENDEDOR', 'DUEÑO'] },
+    { nombre: 'Compras',    ruta: '/compras',     roles: ['ADMINISTRADOR', 'DUEÑO'] },
     { nombre: 'Traslados',  ruta: '/traslados',   roles: ['ADMINISTRADOR', 'VENDEDOR', 'DUEÑO'] },
-    { nombre: 'Sucursales', ruta: '/sucursales',  roles: ['ADMINISTRADOR', 'DUEÑO'] },
+    { nombre: 'Sucursales', ruta: '/sucursales',  roles: ['DUEÑO'] },
     { nombre: 'Usuarios',   ruta: '/usuarios',    roles: ['ADMINISTRADOR', 'DUEÑO'] },
   ];
 

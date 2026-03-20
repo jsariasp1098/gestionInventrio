@@ -8,7 +8,7 @@ export default function Ventas() {
   const [cargando, setCargando] = useState(true);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [productos, setProductos] = useState([]);
-  const [detalles, setDetalles] = useState([{ idProducto: '', cantidad: 1 }]);
+  const [detalles, setDetalles] = useState([]);
   const [error, setError] = useState('');
 
   const cargarVentas = () => {
@@ -21,47 +21,52 @@ export default function Ventas() {
 
   useEffect(() => { cargarVentas(); }, []);
 
-  // Abrir modal de nueva venta
   const abrirCrear = () => {
-    setDetalles([{ idProducto: '', cantidad: 1 }]);
+    setDetalles([{ idProducto: '', cantidad: 1, precioVenta: 0, nombre: '' }]);
     setError('');
-    // Cargar productos disponibles
     api.get('/productos').then((res) => setProductos(res.data));
     setMostrarModal(true);
   };
 
-  // Agregar fila de detalle
   const agregarDetalle = () => {
-    setDetalles([...detalles, { idProducto: '', cantidad: 1 }]);
+    setDetalles([...detalles, { idProducto: '', cantidad: 1, precioVenta: 0, nombre: '' }]);
   };
 
-  // Eliminar fila de detalle
   const eliminarDetalle = (index) => {
     if (detalles.length === 1) return;
     setDetalles(detalles.filter((_, i) => i !== index));
   };
 
-  // Actualizar detalle
   const actualizarDetalle = (index, campo, valor) => {
-    const nuevos = [...detalles];
-    nuevos[index][campo] = campo === 'cantidad' ? Number(valor) : valor;
+    const nuevos = detalles.map((d, i) => {
+      if (i !== index) return d;
+      const copia = { ...d, [campo]: campo === 'cantidad' ? Number(valor) : valor };
+      if (campo === 'idProducto' && valor) {
+        const prod = productos.find((p) => String(p.idProducto) === String(valor));
+        if (prod) {
+          copia.precioVenta = prod.precioVenta;
+          copia.nombre = prod.nombre;
+        }
+      }
+      return copia;
+    });
     setDetalles(nuevos);
   };
 
-  // Guardar venta
+  const calcularTotal = () => {
+    return detalles.reduce((sum, d) => sum + (d.precioVenta * d.cantidad), 0);
+  };
+
   const guardar = async (e) => {
     e.preventDefault();
     setError('');
-
-    // Validar que todos los detalles tengan producto seleccionado
     if (detalles.some((d) => !d.idProducto)) {
       setError('Selecciona un producto en cada línea');
       return;
     }
-
     try {
       await api.post('/ventas', {
-        idUsuario: usuario.idSucursal, // Se usará el usuario logueado
+        idUsuario: usuario.idUsuario,
         idSucursal: usuario.idSucursal,
         detalles: detalles.map((d) => ({
           idProducto: Number(d.idProducto),
@@ -71,11 +76,10 @@ export default function Ventas() {
       setMostrarModal(false);
       cargarVentas();
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al registrar venta');
+      setError(err.response?.data?.mensaje || err.response?.data?.message || 'Error al registrar venta');
     }
   };
 
-  // Eliminar venta
   const eliminar = async (id) => {
     if (!window.confirm('¿Eliminar esta venta?')) return;
     try {
@@ -86,15 +90,15 @@ export default function Ventas() {
     }
   };
 
-  const formatearPrecio = (valor) => {
-    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
-  };
+  const formatearPrecio = (valor) =>
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(valor);
+
+  const hoy = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
 
   if (cargando) return <p className="text-gray-500">Cargando ventas...</p>;
 
   return (
     <div>
-      {/* Encabezado */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Ventas</h1>
         <button onClick={abrirCrear} className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors">
@@ -102,7 +106,6 @@ export default function Ventas() {
         </button>
       </div>
 
-      {/* Tabla de ventas */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full">
           <thead>
@@ -128,14 +131,10 @@ export default function Ventas() {
                   <td className="px-6 py-4">{v.sucursal}</td>
                   <td className="px-6 py-4 text-right font-medium text-green-700">{formatearPrecio(v.total)}</td>
                   <td className="px-6 py-4 text-center">
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-                      {v.estado}
-                    </span>
+                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">{v.estado}</span>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <button onClick={() => eliminar(v.idVenta)} className="text-red-600 hover:text-red-800 text-sm font-medium">
-                      Eliminar
-                    </button>
+                    <button onClick={() => eliminar(v.idVenta)} className="text-red-600 hover:text-red-800 text-sm font-medium">Eliminar</button>
                   </td>
                 </tr>
               ))
@@ -144,75 +143,116 @@ export default function Ventas() {
         </table>
       </div>
 
-      {/* Modal nueva venta */}
+      {/* Modal nueva venta - formulario completo */}
       {mostrarModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Nueva Venta</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            {/* Encabezado del formulario */}
+            <div className="bg-green-600 text-white p-5 rounded-t-lg">
+              <h2 className="text-xl font-bold">Nueva Venta</h2>
+              <p className="text-green-100 text-sm mt-1">Registrar venta de productos</p>
+            </div>
 
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded mb-4 text-sm">{error}</div>
-            )}
+            <div className="p-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">{error}</div>
+              )}
 
-            <form onSubmit={guardar} className="space-y-4">
-              {/* Detalles de la venta */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Productos</label>
-                {detalles.map((det, index) => (
-                  <div key={index} className="flex gap-2 mb-2">
-                    <select
-                      value={det.idProducto}
-                      onChange={(e) => actualizarDetalle(index, 'idProducto', e.target.value)}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="">Seleccionar producto</option>
-                      {productos.map((p) => (
-                        <option key={p.idProducto} value={p.idProducto}>
-                          {p.nombre} - {formatearPrecio(p.precioVenta)}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="number"
-                      value={det.cantidad}
-                      onChange={(e) => actualizarDetalle(index, 'cantidad', e.target.value)}
-                      min="1"
-                      className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => eliminarDetalle(index)}
-                      className="px-3 py-2 text-red-600 hover:text-red-800"
-                    >
-                      X
-                    </button>
+              {/* Info del usuario y sucursal */}
+              <div className="grid grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Vendedor</p>
+                  <p className="text-sm font-semibold text-gray-800">{usuario.nombre}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Sucursal</p>
+                  <p className="text-sm font-semibold text-gray-800">{usuario.nombreSucursal}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 uppercase font-medium">Fecha</p>
+                  <p className="text-sm font-semibold text-gray-800">{hoy}</p>
+                </div>
+              </div>
+
+              <form onSubmit={guardar}>
+                {/* Tabla de productos */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Detalle de productos</label>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-gray-50 text-gray-600 text-xs uppercase">
+                          <th className="px-3 py-2 text-left">Producto</th>
+                          <th className="px-3 py-2 text-center w-20">Cant.</th>
+                          <th className="px-3 py-2 text-right">P. Venta</th>
+                          <th className="px-3 py-2 text-right">Subtotal</th>
+                          <th className="px-3 py-2 w-10"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {detalles.map((det, index) => {
+                          const subtotal = det.precioVenta * det.cantidad;
+                          return (
+                            <tr key={index} className="border-t">
+                              <td className="px-3 py-2">
+                                <select
+                                  value={det.idProducto}
+                                  onChange={(e) => actualizarDetalle(index, 'idProducto', e.target.value)}
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+                                >
+                                  <option value="">Seleccionar...</option>
+                                  {productos.map((p) => (
+                                    <option key={p.idProducto} value={p.idProducto}>{p.nombre}</option>
+                                  ))}
+                                </select>
+                              </td>
+                              <td className="px-3 py-2">
+                                <input
+                                  type="number" value={det.cantidad} min="1"
+                                  onChange={(e) => actualizarDetalle(index, 'cantidad', e.target.value)}
+                                  className="w-full px-2 py-1.5 border border-gray-300 rounded text-center text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
+                                />
+                              </td>
+                              <td className="px-3 py-2 text-right text-gray-600">
+                                {det.precioVenta ? formatearPrecio(det.precioVenta) : '-'}
+                              </td>
+                              <td className="px-3 py-2 text-right font-medium">
+                                {subtotal > 0 ? formatearPrecio(subtotal) : '-'}
+                              </td>
+                              <td className="px-3 py-2 text-center">
+                                <button type="button" onClick={() => eliminarDetalle(index)} className="text-red-500 hover:text-red-700 font-bold">✕</button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={agregarDetalle}
-                  className="text-sm text-green-600 hover:text-green-800 font-medium"
-                >
-                  + Agregar producto
-                </button>
-              </div>
+                  <button type="button" onClick={agregarDetalle} className="mt-2 text-sm text-green-600 hover:text-green-800 font-medium">
+                    + Agregar producto
+                  </button>
+                </div>
 
-              <div className="flex justify-end space-x-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setMostrarModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  Registrar Venta
-                </button>
-              </div>
-            </form>
+                {/* Total */}
+                <div className="flex justify-end mb-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg px-6 py-3 text-right">
+                    <p className="text-xs text-green-600 uppercase font-medium">Total de la venta</p>
+                    <p className="text-2xl font-bold text-green-700">{formatearPrecio(calcularTotal())}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-end space-x-3 border-t pt-4">
+                  <button type="button" onClick={() => setMostrarModal(false)}
+                    className="px-5 py-2.5 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 font-medium">
+                    Cancelar
+                  </button>
+                  <button type="submit"
+                    className="px-5 py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium">
+                    Registrar Venta
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

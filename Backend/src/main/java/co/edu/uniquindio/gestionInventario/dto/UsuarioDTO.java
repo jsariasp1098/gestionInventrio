@@ -10,6 +10,7 @@ public class UsuarioDTO {
     private String telefono;
     private String email;
     private String tipo;
+    private String password;
     private Long idSucursal;
     private String nombreSucursal;
 }

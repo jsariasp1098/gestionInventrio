@@ -23,18 +23,22 @@ export const AuthProvider = ({ children }) => {
     // Guardar token y datos del usuario en localStorage
     localStorage.setItem('token', data.token);
     localStorage.setItem('usuario', JSON.stringify({
+      idUsuario: data.idUsuario,
       nombre: data.nombre,
       email: data.email,
       rol: data.rol,
       idSucursal: data.idSucursal,
+      nombreSucursal: data.nombreSucursal,
     }));
 
     // Actualizar el estado
     setUsuario({
+      idUsuario: data.idUsuario,
       nombre: data.nombre,
       email: data.email,
       rol: data.rol,
       idSucursal: data.idSucursal,
+      nombreSucursal: data.nombreSucursal,
     });
 
     return data;

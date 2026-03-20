@@ -7,6 +7,7 @@ import co.edu.uniquindio.gestionInventario.model.enums.TipoUsuario;
 import co.edu.uniquindio.gestionInventario.repository.SucursalRepository;
 import co.edu.uniquindio.gestionInventario.repository.UsuarioRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,11 +17,14 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final SucursalRepository sucursalRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(UsuarioRepository usuarioRepository,
-                          SucursalRepository sucursalRepository) {
+                          SucursalRepository sucursalRepository,
+                          PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.sucursalRepository = sucursalRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UsuarioDTO> listarUsuarios() {
@@ -47,6 +51,9 @@ public class UsuarioService {
         usuario.setEmail(dto.getEmail());
         usuario.setTipo(TipoUsuario.valueOf(dto.getTipo()));
         usuario.setSucursal(sucursal);
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
 
         Usuario guardado = usuarioRepository.save(usuario);
         return convertirADTO(guardado);
@@ -65,6 +72,9 @@ public class UsuarioService {
         usuario.setEmail(dto.getEmail());
         usuario.setTipo(TipoUsuario.valueOf(dto.getTipo()));
         usuario.setSucursal(sucursal);
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
 
         Usuario actualizado = usuarioRepository.save(usuario);
         return convertirADTO(actualizado);
