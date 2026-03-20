@@ -1,31 +1,75 @@
 
 
 services:
+
   mariadb:
     image: mariadb:latest
     container_name: mariadb
-    restart: no
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: 12345      # contraseña del root
-      MYSQL_DATABASE: inventario              # base de datos inicial
-      MYSQL_USER: user                  # usuario extra
-      MYSQL_PASSWORD: user123           # contraseña de ese usuario
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: inventario
+      MYSQL_USER: user
+      MYSQL_PASSWORD: user123
     ports:
       - "3306:3306"
     volumes:
       - mariadb_data:/var/lib/mysql
+    networks:
+      - inventario-net
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: phpmyadmin
-    restart: no
+    restart: always
     environment:
       PMA_HOST: mariadb
     ports:
       - "8080:80"
     depends_on:
       - mariadb
-    
+    networks:
+      - inventario-net
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/inventario
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: 12345
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    networks:
+      - inventario-net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: always
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - inventario-net
+
+networks:
+  inventario-net:
+    driver: bridge
+
 volumes:
   mariadb_data:
-

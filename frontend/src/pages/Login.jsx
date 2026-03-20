@@ -87,9 +87,9 @@ export default function Login() {
         {/* Info de prueba */}
         <div className="mt-6 p-3 bg-gray-50 rounded text-sm text-gray-500">
           <p className="font-medium text-gray-600 mb-1">Usuarios de prueba:</p>
-          <p>Admin: carlos@optiplant.com</p>
-          <p>Vendedor: maria@optiplant.com</p>
-          <p>Dueño: juan@optiplant.com</p>
+          <p>Admin: admin1@empresa.com</p>
+          <p>Vendedor: vendedor1@empresa.com</p>
+          <p>Dueño: dueno@empresa.com</p>
           <p className="mt-1">Contraseña: 1234</p>
         </div>
       </div>
